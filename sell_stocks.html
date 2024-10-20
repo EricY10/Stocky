@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sell Stocks - Stocky</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar is-primary">
+        <div class="container">
+            <div id="navbarMenuHeroA" class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="{{ url_for('main.index') }}" class="navbar-item">Home</a>
+                    
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.buy_stocks') }}" class="navbar-item">Buy Stocks</a>
+                    <a href="{{ url_for('main.sell_stocks') }}" class="navbar-item is-active">Sell Stocks</a>
+                    <a href="{{ url_for('main.transactions') }}" class="navbar-item">Transactions</a>
+                    <a href="{{ url_for('main.profile') }}" class="navbar-item">Profile</a>
+                    <a href="{{ url_for('auth.logout') }}" class="navbar-item">Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="navbar-item">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="navbar-item">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="title">Sell Stocks</h1>
+
+        {% if error %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="field">
+                <label class="label">Select Stock to Sell</label>
+                <div class="control">
+                    <div class="select">
+                        <select name="stock_symbol" id="stockSymbolSelect" required onchange="updateMaxShares()">
+                            <option value="" disabled selected>Select a stock</option>
+                            {% for stock in user_stocks %}
+                            <option value="{{ stock.stock_symbol }}">{{ stock.stock_symbol }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Number of Shares to Sell</label>
+                <div class="control">
+                    <input class="input" type="number" name="num_shares" id="numSharesInput" required min="1" max="">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-link">Sell</button>
+                </div>
+            </div>
+        </form>
+
+        <h2 class="subtitle">Current Stock Prices</h2>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Current Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for symbol, price in current_prices.items() %}
+                <tr>
+                    <td>{{ symbol }}</td>
+                    <td>${{ price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const userStocks = {
+            {% for stock in user_stocks %}
+                '{{ stock.stock_symbol }}': {{ stock.num_shares }},
+            {% endfor %}
+        };
+
+        function updateMaxShares() {
+            const stockSymbol = document.getElementById('stockSymbolSelect').value;
+            const numSharesInput = document.getElementById('numSharesInput');
+            numSharesInput.max = stockSymbol ? userStocks[stockSymbol] : '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Buy Stocks - Stocky</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar is-primary">
+        <div class="container">
+            <div id="navbarMenuHeroA" class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="{{ url_for('main.index') }}" class="navbar-item">Home</a>
+                    
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.buy_stocks') }}" class="navbar-item is-active">Buy Stocks</a>
+                    <a href="{{ url_for('main.sell_stocks') }}" class="navbar-item">Sell Stocks</a>
+                    <a href="{{ url_for('main.transactions') }}" class="navbar-item">Transactions</a>
+                    <a href="{{ url_for('main.profile') }}" class="navbar-item">Profile</a>
+                    <a href="{{ url_for('auth.logout') }}" class="navbar-item">Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="navbar-item">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="navbar-item">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="title">Buy Stocks</h1>
+
+        {% if error %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="field">
+                <label class="label">Stock Symbol</label>
+                <div class="control">
+                    <input class="input" type="text" name="stock_symbol" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Number of Shares</label>
+                <div class="control">
+                    <input class="input" type="number" name="num_shares" required min="1">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-link">Buy</button>
+                </div>
+            </div>
+        </form>
+
+        <h2 class="subtitle">Current Stock Prices</h2>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Current Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for symbol, price in current_prices.items() %}
+                <tr>
+                    <td>{{ symbol }}</td>
+                    <td>${{ price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
